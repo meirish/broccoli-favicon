@@ -52,6 +52,9 @@ Favicons.prototype.constructor = Plugin;
 
 Favicons.prototype.build = function build() {
   var self = this;
+  var writeFile = function writeFile(file) {
+    fs.writeFileSync(path.join(self.outputPath, file.name), file.contents);
+  }
   assert(this.inputPaths.length === 1, 'You must supply a single input node only.');
   return new Promise(function(resolve, reject) {
     var config = merge(defaultConfig, self.config);
@@ -61,9 +64,8 @@ Favicons.prototype.build = function build() {
         reject(new Error(error.name + ': ' + error.message));
       }
       self.htmlCallback(response.html);
-      response.images.forEach(function writeImageFile(image) {
-        fs.writeFileSync(path.join(self.outputPath, image.name), image.contents);
-      });
+      response.images.forEach(writeFile);
+      response.files.forEach(writeFile);
       resolve();
     });
   });
